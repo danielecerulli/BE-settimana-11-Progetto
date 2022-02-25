@@ -79,7 +79,7 @@ public class SegreteriaController {
 			
 			return "error";
 		}
-			CorsoConverter cC = new CorsoConverter();
+			//CorsoConverter cC = new CorsoConverter();
 		model.addAttribute("nome", studente.getNome());
 		model.addAttribute("cognome", studente.getCognome());
 		model.addAttribute("dataNascita", studente.getDataNascita());
@@ -139,18 +139,16 @@ public class SegreteriaController {
 	
 	//@PutMapping("/updateStudente")
 	@RequestMapping(value="/updateStudente", method=RequestMethod.GET)
-	public String update(@Valid @ModelAttribute("studente") Studente studente, Corso corso, ModelMap model, BindingResult result, Model m) {
-		
-		if (result.hasErrors()) {
-			
+	public String update(@ModelAttribute("studente") Studente studente, Corso corso, ModelMap model, BindingResult result, Model m) {
+		/*if (result.hasErrors()) {		
 			return "error";
-		}
+		}*/	
 		
 		List<Studente> listaStudenti = segreteria.getListaStudenti();
 		for (Studente s : listaStudenti) {
 			if ( s.getMatricola() == studente.getMatricola() ) {
 				
-				CorsoConverter cC = new CorsoConverter();
+				//CorsoConverter cC = new CorsoConverter();
 				
 				model.addAttribute("matricola", s.getMatricola());
 				model.addAttribute("nome", studente.getNome());
@@ -174,12 +172,12 @@ public class SegreteriaController {
 				s.setCitta(studente.getCitta());
 				s.setMail(studente.getMail());
 				s.setCorso(corsoScelto);
-				//listaStudenti.add(studente);
+				listaStudenti.add(studente);
 				
-				segreteria.getListaStudenti().add(studente);
+				//segreteria.getListaStudenti().add(studente);
 				
 				log.info("Hai modificato lo studente: " + studente.toString());
-				log.info("Nuovi Dati inseriti: " + s.toString());
+				log.info("Nuovi dati studente: " + s.toString());
 				
 				model.addAttribute("listaStudenti", listaStudenti);
 				
@@ -196,7 +194,7 @@ public class SegreteriaController {
 	
 	//@DeleteMapping("/deleteStudente")
 	@RequestMapping(value="/deleteStudente", method=RequestMethod.GET)
-	public String delete(@Valid @ModelAttribute("studente") Studente studente, ModelMap model, BindingResult result) {
+	public String delete(@ModelAttribute("studente") Studente studente, ModelMap model, BindingResult result) {
 		if (result.hasErrors()) {
 			
 			return "error";
@@ -242,6 +240,8 @@ public class SegreteriaController {
 		
 		log.info("Hai inserito il Corso: " + corso.toString());
 		segreteria.getListaCorsi().add(corso);
+		
+		model.addAttribute("listaCorsi", segreteria.getListaCorsi());
 		return "listaCorsi";
 	}
 	
@@ -251,8 +251,8 @@ public class SegreteriaController {
 		
 	}
 	
-	@RequestMapping(value="/updateCorso", method=RequestMethod.GET)
-	public String update(@Valid @ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result) {
+	/*@RequestMapping(value="/updateCorso", method=RequestMethod.GET)
+	public String update(@Valid @ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result, Model m) {
 		
 		if (result.hasErrors()) {
 			
@@ -261,7 +261,7 @@ public class SegreteriaController {
 		List<Corso> listaCorsi = segreteria.getListaCorsi();
 		for (Corso c : listaCorsi) {
 			if ( c.getIdCorso() == corso.getIdCorso() ) {
-				
+			
 				model.addAttribute("idCorso", c.getIdCorso());
 				model.addAttribute("materia", corso.getMateria());
 				model.addAttribute("indirizzoStudio", corso.getIndirizzoStudio());
@@ -278,12 +278,12 @@ public class SegreteriaController {
 				log.info("Hai modificato il Corso: " + corso.toString());
 				log.info("Nuovi Dati inseriti: " + c.toString());
 				
-				model.addAttribute("listaCorsi", listaCorsi);
+				model.addAttribute("listaCorsi", segreteria.getListaCorsi());
 				
 			}
 		}
 		return "listaCorsi";	
-	}
+	}*/
 	
 	@RequestMapping(value="/eliminacorso", method=RequestMethod.GET)
 	public ModelAndView eliminaFormCorso() {
@@ -292,7 +292,7 @@ public class SegreteriaController {
 	}
 	
 	@RequestMapping(value="/deleteCorso", method=RequestMethod.GET)
-	public String delete(@Valid @ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result) {
+	public String delete(@ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result) {
 		if (result.hasErrors()) {
 			
 			return "error";
@@ -314,6 +314,46 @@ public class SegreteriaController {
 	
 		}
 		return "listaCorsi";
+	}
+	
+	@RequestMapping(value="/updateCorso", method=RequestMethod.GET)
+	public String update(@ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result, Model m) {
+		/*if (result.hasErrors()) {		
+			return "error";
+		}*/	
+		List<Corso> listaCorsi = segreteria.getListaCorsi();
+		for (Corso c : listaCorsi) {
+			if ( c.getIdCorso() == corso.getIdCorso() ) {
+				
+				//CorsoConverter cC = new CorsoConverter();
+				
+				model.addAttribute("idCorso", c.getIdCorso());
+				model.addAttribute("materia", corso.getMateria());
+				model.addAttribute("indirizzoStudio", corso.getIndirizzoStudio());
+				model.addAttribute("numeroEsami", corso.getNumeroEsami());
+				
+				Corso corsoScelto = (Corso)model.getAttribute("corso"); 
+				log.info("Id corso segreteriaController " + corsoScelto.getIdCorso() + " " + corsoScelto.getMateria());
+				
+				model.addAttribute("corso", corsoScelto);
+				listaCorsi.remove(c);
+				
+				c.setIdCorso(c.getIdCorso());
+				c.setMateria(corso.getMateria());
+				c.setIndirizzoStudio(corso.getIndirizzoStudio());
+				c.setNumeroEsami(corso.getNumeroEsami());
+				//listaStudenti.add(studente);
+				
+				segreteria.getListaCorsi().add(corso);
+				
+				log.info("Hai modificato il corso: " + corso.toString());
+				log.info("Nuovi Dati inseriti: " + c.toString());
+				
+				model.addAttribute("listaCorsi", listaCorsi);
+				
+			}
+		}
+		return "listaCorsi";	
 	}
 	
 
