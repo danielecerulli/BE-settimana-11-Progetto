@@ -50,7 +50,7 @@
 	<p>
 		Numero Esami da Sostenere: <span th:text="${corso.getNumeroEsami()}"></span>
 	</p>
-<a href="listaStudenti.html">Lista Studenti</a>
-<a href="formStudente.html">Aggiungi studente</a>
+<a th:action="@{/studenti}" href="listaStudenti.html">Lista Studenti</a>
+	<a th:action="@{/corsi}" href="listaCorsi.html">Lista Corsi</a>
 </body>
 </html>
