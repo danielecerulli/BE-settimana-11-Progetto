@@ -4,6 +4,9 @@ import java.time.LocalDate;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,13 +17,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Studente {
 	
-	@NotEmpty(message = "Inserisci la Matricola!")
+	
 	private int matricola;
 	@NotEmpty(message = "Inserisci il nome!")
 	private String nome;
 	@NotEmpty(message = "Inserisci il cognome!")
 	private String cognome;
-	@NotEmpty(message = "Inserisci la data di nascita!")
+	@NotNull(message = "Inserisci la data di nascita!")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate dataNascita;
 	@NotEmpty(message = "Inserisci la mail!")
 	@Email(message = "Inserisci un formato valido per il campo 'Email'")
@@ -29,7 +33,7 @@ public class Studente {
 	private String indirizzo;
 	@NotEmpty(message = "Inserisci la città!")
 	private String citta;
-	@NotEmpty(message = "Scegli il corso di Studi!")
+	
 	private Corso corso;
 	
 	
