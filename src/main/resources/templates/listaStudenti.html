@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Lista Studenti</title>
+</head>
+<body>
+	
+	<h1>Lista Studenti</h1>
+		<h2>Studenti:</h2>
+	
+	<div th:each="s: ${listaStudenti}">
+		<div th:text="${s.toString()}"></div>
+		</div>
+
+</body>
+</html>
