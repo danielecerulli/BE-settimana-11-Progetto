@@ -10,8 +10,8 @@ public class SegreteriaStudentiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SegreteriaStudentiApplication.class, args);
-		GestioneSegreteria stampa = new GestioneSegreteria();
-		stampa.stampaListe();
+		
+		
 	}
 
 }

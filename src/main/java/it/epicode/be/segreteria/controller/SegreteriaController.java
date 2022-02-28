@@ -2,31 +2,23 @@ package it.epicode.be.segreteria.controller;
 
 import java.util.List;
 
-import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import it.epicode.be.segreteria.config.SegreteriaConfig;
 import it.epicode.be.segreteria.model.Corso;
-import it.epicode.be.segreteria.model.CorsoChimica;
-import it.epicode.be.segreteria.model.CorsoConverter;
-import it.epicode.be.segreteria.model.CorsoFisica;
-import it.epicode.be.segreteria.model.CorsoLettere;
 import it.epicode.be.segreteria.model.Segreteria;
 import it.epicode.be.segreteria.model.Studente;
 
@@ -37,17 +29,16 @@ public class SegreteriaController {
 	Logger log = LoggerFactory.getLogger(getClass());
 	
 	
-	private Segreteria segreteria;
+	@Autowired
 	private ApplicationContext ctx;
 	
-	public SegreteriaController() {
-		ctx = new AnnotationConfigApplicationContext(SegreteriaConfig.class); 
-		segreteria = (Segreteria) ctx.getBean("segreteria"); 
+	public Segreteria getSegreteria() {
+		return ctx.getBean(Segreteria.class);
 	}
 	
 	@GetMapping("/studenti")
 	public String listaStudenti( Model model ) {
-		List<Studente> listaStudenti = segreteria.getListaStudenti();
+		List<Studente> listaStudenti = getSegreteria().getListaStudenti();
 		
 		model.addAttribute("listaStudenti", listaStudenti);
 		log.info("Lista Studenti: " + listaStudenti.toString());
@@ -56,7 +47,7 @@ public class SegreteriaController {
 	
 	@GetMapping("/corsi")
 	public String listaCorsi( Model model ) {
-		List<Corso> listaCorsi = segreteria.getListaCorsi();
+		List<Corso> listaCorsi = getSegreteria().getListaCorsi();
 		
 		model.addAttribute("listaCorsi", listaCorsi);
 		
@@ -66,72 +57,37 @@ public class SegreteriaController {
 	@RequestMapping(value="/studente", method=RequestMethod.GET)
 	public ModelAndView showForm(Model model) {
 		log.info("Richiesta form inserimento nuovo Studente");
-		List<Corso> listaCorsi = segreteria.getListaCorsi();
-		model.addAttribute("listaCorsi", listaCorsi);
+		model.addAttribute("listaCorsi", getSegreteria().getListaCorsi());
 		return new ModelAndView("formStudente", "studente", new Studente());
 		
 	}
 	
 	@PostMapping(value="/addStudente")
-	public String submit(@Valid @ModelAttribute("studente") Studente studente, Corso corso, ModelMap model, BindingResult result, Model m) {
+	public String submit(@ModelAttribute("studente") Studente studente, ModelMap model) {
 		
-		if (result.hasErrors()) {
 			
-			return "error";
-		}
-			//CorsoConverter cC = new CorsoConverter();
 		model.addAttribute("nome", studente.getNome());
 		model.addAttribute("cognome", studente.getCognome());
 		model.addAttribute("dataNascita", studente.getDataNascita());
 		model.addAttribute("indirizzo", studente.getIndirizzo());
 		model.addAttribute("citta", studente.getCitta());
 		model.addAttribute("mail", studente.getMail());
-		model.addAttribute("matricola", studente.getMatricola());
+		model.addAttribute("matricola", studente.getMatricola());	
 		
-		Corso corsoScelto = (Corso)model.getAttribute("corso"); 
-		log.info("Id corso segreteriaController " + corsoScelto.getIdCorso() + " " + corsoScelto.getMateria()); 
 		
-		//Corso corsoC = cC.convert((String) model.getAttribute("c.getIdCorso()"));
-		//log.info("ID corso scelto: " + corsoC.getIdCorso() + " Materia: " + corsoC.getMateria());
-		model.addAttribute("corso", corsoScelto); // ---
+		//Corso corsoScelto = (Corso)model.getAttribute("corso");
 		
-		Studente s = new Studente();
-		s.setMatricola(studente.getMatricola());
-		s.setNome(studente.getNome());
-		s.setCognome(studente.getCognome());
-		s.setDataNascita(studente.getDataNascita());
-		s.setIndirizzo(studente.getIndirizzo());
-		s.setCitta(studente.getCitta());
-		s.setMail(studente.getMail());
+		model.addAttribute("corso", studente.getCorso()); 
 		
-		s.setCorso(corsoScelto); // ---
-		
-		/*if (model.getAttribute("corso").equals("fisica")) {
-			CorsoFisica fisica = (CorsoFisica)ctx.getBean("corsofisica");
-			s.setCorso(fisica);
-			
-		}
-		
-		else if (model.getAttribute("corso").equals("lettere")) {
-			CorsoLettere lettere = (CorsoLettere)ctx.getBean("corsolettere");
-			s.setCorso(lettere);
-		}
-		
-		else if (model.getAttribute("corso").equals("chimica")) {
-			CorsoChimica chimica = (CorsoChimica)ctx.getBean("corsochimica");
-			s.setCorso(chimica);
-		} else {
-		s.setCorso(null);}*/
-		
-		log.info("Hai inserito lo studente: " + s.toString());
-		segreteria.getListaStudenti().add(s);
+		log.info("Hai inserito lo studente: " + studente.toString());
+		getSegreteria().getListaStudenti().add(studente);
 		
 		return "studenteView";
 	}
 	
 	@RequestMapping(value="/editstudente", method=RequestMethod.GET)
 	public ModelAndView editForm(Model model) {
-		List<Corso> listaCorsi = segreteria.getListaCorsi();
+		List<Corso> listaCorsi = getSegreteria().getListaCorsi();
 		model.addAttribute("listaCorsi", listaCorsi);
 		return new ModelAndView("editStudente", "studente", new Studente());
 		
@@ -139,16 +95,15 @@ public class SegreteriaController {
 	
 	//@PutMapping("/updateStudente")
 	@RequestMapping(value="/updateStudente", method=RequestMethod.GET)
-	public String update(@ModelAttribute("studente") Studente studente, Corso corso, ModelMap model, BindingResult result, Model m) {
+	public String update(@ModelAttribute("studente") Studente studente,@ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result, Model m) {
 		/*if (result.hasErrors()) {		
 			return "error";
 		}*/	
 		
-		List<Studente> listaStudenti = segreteria.getListaStudenti();
+		List<Studente> listaStudenti = getSegreteria().getListaStudenti();
 		for (Studente s : listaStudenti) {
 			if ( s.getMatricola() == studente.getMatricola() ) {
 				
-				//CorsoConverter cC = new CorsoConverter();
 				
 				model.addAttribute("matricola", s.getMatricola());
 				model.addAttribute("nome", studente.getNome());
@@ -158,10 +113,8 @@ public class SegreteriaController {
 				model.addAttribute("citta", studente.getCitta());
 				model.addAttribute("mail", studente.getMail());
 				
-				Corso corsoScelto = (Corso)model.getAttribute("corso"); 
-				log.info("Id corso segreteriaController " + corsoScelto.getIdCorso() + " " + corsoScelto.getMateria());
 				
-				model.addAttribute("corso", corsoScelto);
+				model.addAttribute("corso", studente.getCorso());
 				listaStudenti.remove(s);
 				
 				s.setMatricola(s.getMatricola());
@@ -171,13 +124,10 @@ public class SegreteriaController {
 				s.setIndirizzo(studente.getIndirizzo());
 				s.setCitta(studente.getCitta());
 				s.setMail(studente.getMail());
-				s.setCorso(corsoScelto);
 				listaStudenti.add(studente);
-				
-				//segreteria.getListaStudenti().add(studente);
+
 				
 				log.info("Hai modificato lo studente: " + studente.toString());
-				log.info("Nuovi dati studente: " + s.toString());
 				
 				model.addAttribute("listaStudenti", listaStudenti);
 				
@@ -200,7 +150,7 @@ public class SegreteriaController {
 			return "error";
 		}
 		
-		List<Studente> listaStudenti = segreteria.getListaStudenti();
+		List<Studente> listaStudenti = getSegreteria().getListaStudenti();
 		for (Studente s : listaStudenti) {
 			if ( s.getMatricola() == studente.getMatricola() ) {
 				log.info("matricola s: " + s.getMatricola());
@@ -226,7 +176,7 @@ public class SegreteriaController {
 	}
 	
 	@PostMapping(value="/addCorso")
-	public String submit(@Valid @ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result) {
+	public String submit(@ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result) {
 		
 		if (result.hasErrors()) {
 			
@@ -239,9 +189,11 @@ public class SegreteriaController {
 		model.addAttribute("numeroEsami", corso.getNumeroEsami());
 		
 		log.info("Hai inserito il Corso: " + corso.toString());
-		segreteria.getListaCorsi().add(corso);
 		
-		model.addAttribute("listaCorsi", segreteria.getListaCorsi());
+		getSegreteria().getListaCorsi().add(corso);
+		log.info("numero corsi disponibil: " + getSegreteria().getListaCorsi().size());
+		
+		model.addAttribute("listaCorsi", getSegreteria().getListaCorsi());
 		return "listaCorsi";
 	}
 	
@@ -251,39 +203,6 @@ public class SegreteriaController {
 		
 	}
 	
-	/*@RequestMapping(value="/updateCorso", method=RequestMethod.GET)
-	public String update(@Valid @ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result, Model m) {
-		
-		if (result.hasErrors()) {
-			
-			return "error";
-		}
-		List<Corso> listaCorsi = segreteria.getListaCorsi();
-		for (Corso c : listaCorsi) {
-			if ( c.getIdCorso() == corso.getIdCorso() ) {
-			
-				model.addAttribute("idCorso", c.getIdCorso());
-				model.addAttribute("materia", corso.getMateria());
-				model.addAttribute("indirizzoStudio", corso.getIndirizzoStudio());
-				model.addAttribute("numeroEsami", corso.getNumeroEsami());
-				
-				
-				listaCorsi.remove(c);
-				
-				c.setIdCorso(c.getIdCorso());
-				c.setMateria(corso.getMateria());
-				c.setIndirizzoStudio(corso.getIndirizzoStudio());
-				c.setNumeroEsami(corso.getNumeroEsami());
-				
-				log.info("Hai modificato il Corso: " + corso.toString());
-				log.info("Nuovi Dati inseriti: " + c.toString());
-				
-				model.addAttribute("listaCorsi", segreteria.getListaCorsi());
-				
-			}
-		}
-		return "listaCorsi";	
-	}*/
 	
 	@RequestMapping(value="/eliminacorso", method=RequestMethod.GET)
 	public ModelAndView eliminaFormCorso() {
@@ -298,7 +217,7 @@ public class SegreteriaController {
 			return "error";
 		}
 		
-		List<Corso> listaCorsi = segreteria.getListaCorsi();
+		List<Corso> listaCorsi = getSegreteria().getListaCorsi();
 		for (Corso c : listaCorsi) {
 			if ( c.getIdCorso() == corso.getIdCorso() ) {
 				log.info("ID corso c: " + c.getIdCorso());
@@ -321,7 +240,7 @@ public class SegreteriaController {
 		/*if (result.hasErrors()) {		
 			return "error";
 		}*/	
-		List<Corso> listaCorsi = segreteria.getListaCorsi();
+		List<Corso> listaCorsi = getSegreteria().getListaCorsi();
 		for (Corso c : listaCorsi) {
 			if ( c.getIdCorso() == corso.getIdCorso() ) {
 				
@@ -337,17 +256,11 @@ public class SegreteriaController {
 				
 				model.addAttribute("corso", corsoScelto);
 				listaCorsi.remove(c);
+
 				
-				c.setIdCorso(c.getIdCorso());
-				c.setMateria(corso.getMateria());
-				c.setIndirizzoStudio(corso.getIndirizzoStudio());
-				c.setNumeroEsami(corso.getNumeroEsami());
-				//listaStudenti.add(studente);
-				
-				segreteria.getListaCorsi().add(corso);
+				getSegreteria().getListaCorsi().add(corso);
 				
 				log.info("Hai modificato il corso: " + corso.toString());
-				log.info("Nuovi Dati inseriti: " + c.toString());
 				
 				model.addAttribute("listaCorsi", listaCorsi);
 				

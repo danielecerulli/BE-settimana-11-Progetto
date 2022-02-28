@@ -44,10 +44,10 @@
   <option  th:value="chimica" th:text="chimica">Chimica</option>
    </select>-->
    
-   <select th:object="${studente}"  th:field="*{corso}" name="corso">
+   <select th:field="*{corso}" name="corso">
 	<option th:each="c : ${listaCorsi}"
-    th:value="${c.getIdCorso()}"
-    th:text="${c.getMateria()}" />
+    th:value="${c.idCorso}"
+    th:text="${c.materia}" />
     </select>
   
  <!-- <select name="corso" id="corso" required>
