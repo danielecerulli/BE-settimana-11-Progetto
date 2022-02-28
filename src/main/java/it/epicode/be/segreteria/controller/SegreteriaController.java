@@ -236,7 +236,7 @@ public class SegreteriaController {
 	}
 	
 	@RequestMapping(value="/updateCorso", method=RequestMethod.GET)
-	public String update(@ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result, Model m) {
+	public String update(@ModelAttribute("corso") Corso corso, ModelMap model, BindingResult result) {
 		/*if (result.hasErrors()) {		
 			return "error";
 		}*/	
@@ -251,13 +251,8 @@ public class SegreteriaController {
 				model.addAttribute("indirizzoStudio", corso.getIndirizzoStudio());
 				model.addAttribute("numeroEsami", corso.getNumeroEsami());
 				
-				Corso corsoScelto = (Corso)model.getAttribute("corso"); 
-				log.info("Id corso segreteriaController " + corsoScelto.getIdCorso() + " " + corsoScelto.getMateria());
-				
-				model.addAttribute("corso", corsoScelto);
 				listaCorsi.remove(c);
 
-				
 				getSegreteria().getListaCorsi().add(corso);
 				
 				log.info("Hai modificato il corso: " + corso.toString());
